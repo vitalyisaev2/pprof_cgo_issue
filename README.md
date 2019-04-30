@@ -1,3 +1,5 @@
+Steps to reproduce [Golang #31758](https://github.com/golang/go/issues/31758):
+
 ```bash
 
 # build docker image
