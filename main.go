@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"flag"
 	"fmt"
 	"hash"
 	"log"
@@ -10,8 +11,8 @@ import (
 	"sync"
 
 	_ "github.com/ianlancetaylor/cgosymbolizer"
-
 	"github.com/pkg/profile"
+
 	"github.com/spacemonkeygo/openssl"
 )
 
@@ -62,26 +63,31 @@ func compute(pool *sync.Pool, data []byte) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
-const dataSize = 1024 * 4
-
 func main() {
-	// setup profiler
-	options := []func(*profile.Profile){
-		profile.ProfilePath("."),
-		profile.NoShutdownHook,
-		profile.CPUProfile,
-	}
-	profiler := profile.Start(options...)
-	defer profiler.Stop()
 
-	// setup openssl
+	useProfiler := flag.Bool("profiler", false, "enable CPU profiler")
+	flag.Parse()
+
+	// setup profiler
+	if *useProfiler {
+		options := []func(*profile.Profile){
+			profile.ProfilePath("."),
+			profile.NoShutdownHook,
+			profile.CPUProfile,
+		}
+		profiler := profile.Start(options...)
+		defer profiler.Stop()
+	}
+
+	// setup input
+	const dataSize = 1024 * 4
 	input := make([]byte, dataSize)
 	_, err := rand.Read(input)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// setup hash pool
+	// setup hash pool to reuse hashers
 	hashPool := &sync.Pool{
 		New: func() interface{} { return newOpenSSLSHA256Hash() },
 	}
