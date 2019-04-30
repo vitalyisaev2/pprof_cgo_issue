@@ -11,7 +11,7 @@ docker run -it --name=pprof_cgo_issue --privileged pprof_cgo_issue bash
 echo '/tmp/core.%h.%e.%t' > /proc/sys/kernel/core_pattern
 ulimit -c unlimited
 
-# launch process without profiler - OK
+# launch process without profiler - works good
 ./pprof_cgo_issue
 [179 142 216 38 137 21 205 79 196 127 27 100 185 152 49 247 13 156 231 179 50 95 170 87 16 217 60 126 116 206 223 3]
 
@@ -20,7 +20,7 @@ ulimit -c unlimited
 2019/04/30 12:14:40 profile: cpu profiling enabled, cpu.pprof
 Segmentation fault (core dumped)
 
-# tap into core dump
+# check core dump
 gdb ./pprof_cgo_issue /tmp/core.d685d2a145b4.pprof_cgo_issue.1556626480.20
 (gdb) bt
 #0  0x00007fb47640c246 in ?? () from /lib64/libgcc_s.so.1
